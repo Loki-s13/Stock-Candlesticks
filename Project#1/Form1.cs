@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace Project_1
 {
@@ -15,12 +16,14 @@ namespace Project_1
 
         public Form_StockViewer()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            
         }
 
         public Form_StockViewer(String filename, DateTime startDate, DateTime endDate)
         {
             InitializeComponent();
+            
             dateTime_start.Value = startDate;
             dateTime_end.Value = endDate;
 
@@ -129,12 +132,15 @@ namespace Project_1
                 var fileNames = openFileDialog_stock.FileNames;
 
                 try
+
+                    
                 {
                     void displayOne(String filePath)
                     {
                         listOfCandlesticks = Candlestick.LoadStockDataFromCSV(filePath);
                         filterCandlesticks();
                         displayCandlesticks();
+                        this.Text = $"Stock Viewer - {System.IO.Path.GetFileName(filePath)}";
                     }
 
                     if (fileNames.Length == 1)
@@ -161,6 +167,8 @@ namespace Project_1
 
         private void update_StockData(object sender, EventArgs e)
         {
+            filterCandlesticks();
+            displayCandlesticks();
 
 
         }
