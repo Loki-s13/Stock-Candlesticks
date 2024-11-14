@@ -42,13 +42,14 @@
             this.endDate_picker = new System.Windows.Forms.Label();
             this.aCandlestickBindingSource_stock = new System.Windows.Forms.BindingSource(this.components);
             this.candlestickChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.button_update = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.aCandlestickBindingSource_stock)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.candlestickChart)).BeginInit();
             this.SuspendLayout();
             // 
             // stockLoad_button
             // 
-            this.stockLoad_button.Location = new System.Drawing.Point(464, 94);
+            this.stockLoad_button.Location = new System.Drawing.Point(464, 23);
             this.stockLoad_button.Name = "stockLoad_button";
             this.stockLoad_button.Size = new System.Drawing.Size(188, 62);
             this.stockLoad_button.TabIndex = 0;
@@ -129,11 +130,22 @@
             this.candlestickChart.TabIndex = 6;
             this.candlestickChart.Text = "chart1";
             // 
+            // button_update
+            // 
+            this.button_update.Location = new System.Drawing.Point(464, 129);
+            this.button_update.Name = "button_update";
+            this.button_update.Size = new System.Drawing.Size(188, 59);
+            this.button_update.TabIndex = 7;
+            this.button_update.Text = "Update";
+            this.button_update.UseVisualStyleBackColor = true;
+            this.button_update.Click += new System.EventHandler(this.update_StockData);
+            // 
             // Form_StockViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1245, 1096);
+            this.Controls.Add(this.button_update);
             this.Controls.Add(this.candlestickChart);
             this.Controls.Add(this.endDate_picker);
             this.Controls.Add(this.startDate_picker);
@@ -159,6 +171,7 @@
         private System.Windows.Forms.Label endDate_picker;
         private System.Windows.Forms.BindingSource aCandlestickBindingSource_stock;
         private System.Windows.Forms.DataVisualization.Charting.Chart candlestickChart;
+        private System.Windows.Forms.Button button_update;
     }
 }
 

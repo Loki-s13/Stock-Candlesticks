@@ -158,5 +158,11 @@ namespace Project_1
                 }
             }
         }
+
+        private void update_StockData(object sender, EventArgs e)
+        {
+
+
+        }
     }
 }
