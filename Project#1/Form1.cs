@@ -27,7 +27,7 @@ namespace Project_1
             dateTime_start.Value = startDate;
             dateTime_end.Value = endDate;
 
-            listOfCandlesticks = Candlestick.LoadStockDataFromCSV(filename);
+            listOfCandlesticks = SmartCandlestick.LoadStockDataFromCSV(filename);
             filterCandlesticks();
             displayCandlesticks();
 
@@ -95,6 +95,7 @@ namespace Project_1
             // Clear existing chart data
             candlestickChart.Series["SeriesCandlestick"].Points.Clear();
             candlestickChart.Series["SeriesVolume"].Points.Clear();
+            
 
             foreach (var item in boundCandlesticks)
             {
@@ -137,7 +138,7 @@ namespace Project_1
                 {
                     void displayOne(String filePath)
                     {
-                        listOfCandlesticks = Candlestick.LoadStockDataFromCSV(filePath);
+                        listOfCandlesticks = SmartCandlestick.LoadStockDataFromCSV(filePath);
                         filterCandlesticks();
                         displayCandlesticks();
                         this.Text = $"Stock Viewer - {System.IO.Path.GetFileName(filePath)}";
