@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Forms.VisualStyles;
 
 namespace Project_1
@@ -11,19 +13,19 @@ namespace Project_1
     public partial class Form_StockViewer : Form
     {
 
-        private BindingList<Candlestick> boundCandlesticks = null;
-        private List<Candlestick> listOfCandlesticks = null;
+        private BindingList<SmartCandlestick> boundCandlesticks = null;
+        private List<SmartCandlestick> listOfCandlesticks = null;
 
         public Form_StockViewer()
         {
             InitializeComponent();
-            
+
         }
 
         public Form_StockViewer(String filename, DateTime startDate, DateTime endDate)
         {
             InitializeComponent();
-            
+
             dateTime_start.Value = startDate;
             dateTime_end.Value = endDate;
 
@@ -48,9 +50,9 @@ namespace Project_1
             DateTime endDate = dateTime_end.Value;
 
             // Filter data by selected date range
-             boundCandlesticks = new BindingList<Candlestick>(listOfCandlesticks
-                .Where(item => item.Date >= startDate && item.Date <= endDate)
-                .ToList());
+            boundCandlesticks = new BindingList<SmartCandlestick>(listOfCandlesticks
+               .Where(item => item.Date >= startDate && item.Date <= endDate)
+               .ToList());
 
             // Check if data is available for the selected date range
             if (boundCandlesticks.Count == 0)
@@ -87,39 +89,127 @@ namespace Project_1
         }
 
         /// <summary>
-        /// Displays the loaded data in the chart.
+        /// Displays the loaded data in the chart. Adds annotations for peak or valley candlesticks
         /// </summary>
         private void displayCandlesticks()
         {
             candlestickChart.DataSource = boundCandlesticks;
-            // Clear existing chart data
-            candlestickChart.Series["SeriesCandlestick"].Points.Clear();
-            candlestickChart.Series["SeriesVolume"].Points.Clear();
-            
 
-            foreach (var item in boundCandlesticks)
+            for (int i = 0; i < boundCandlesticks.Count; i++)
             {
+
+                var item = boundCandlesticks[i];
                 // Add the candlestick data to the SeriesCandlestick
                 int pointIndex = candlestickChart.Series["SeriesCandlestick"].Points.AddXY(item.Date, item.High, item.Low, item.Open, item.Close);
                 candlestickChart.Series["SeriesCandlestick"].Points[pointIndex].Color = item.Close > item.Open ? System.Drawing.Color.LawnGreen : System.Drawing.Color.Red;
 
                 // Add the volume data to the SeriesVolume
                 candlestickChart.Series["SeriesVolume"].Points.AddXY(item.Date, item.Volume);
+
+                if (item.IsPeak(boundCandlesticks.ToList(), i))
+                {
+                    AddPeakAnnotation(item.Date, item.High, pointIndex);
+                }
+                else if (item.IsValley(boundCandlesticks.ToList(), i))
+                {
+                    AddValleyAnnotation(item.Date, item.Low);
+                }
             }
         }
+
+
+        /// <summary>
+        /// Adds an annotation and a horizontal line for a peak
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="high"></param>
+        private void AddPeakAnnotation(DateTime date, decimal high, int pointIndex)
+        {
+ 
+            var peakAnnotation = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation
+            {
+                Text = "▲",
+                ForeColor = Color.Green,
+                Font = new Font("Arial", 150, FontStyle.Bold),
+                AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY,
+                ClipToChartArea = "ChartAreaCandlestick",
+                Y = (double)high,
+                Alignment = System.Drawing.ContentAlignment.BottomCenter
+            };
+
+            candlestickChart.Annotations.Add(peakAnnotation);
+       
+
+            // Draw a green horizontal line across the chart at the peak level
+            var peakLine = new System.Windows.Forms.DataVisualization.Charting.HorizontalLineAnnotation
+            {
+                AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY,
+                ClipToChartArea = "ChartAreaCandlestick",
+                IsInfinitive = true,
+                Y = (double)high,
+                LineColor = Color.Green,
+                LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash
+            };
+            candlestickChart.Annotations.Add(peakLine);
+
+
+        }
+
+
+        /// <summary>
+        /// Adds annotation and a horizontal line for a peak
+        /// </summary>
+
+        /// <param name="date"></param>
+        /// <param name="low"></param>
+        private void AddValleyAnnotation(DateTime date, decimal low)
+        {
+
+            /*var valleyAnnotation = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation
+            {
+                Text = "▼",
+                ForeColor = System.Drawing.Color.Red,
+                Font = new Font("Arial", 12, FontStyle.Bold),
+                X = date.ToOADate(),
+                Y = (double)low,
+                Alignment = System.Drawing.ContentAlignment.TopCenter
+            };*/
+            var valleyAnnotation = new TextAnnotation();
+            valleyAnnotation.AxisX = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisX;
+            valleyAnnotation.AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY;
+            valleyAnnotation.IsSizeAlwaysRelative = false;
+            valleyAnnotation.AnchorAlignment = System.Drawing.ContentAlignment.BottomLeft;
+            valleyAnnotation.Text = "TESTING";
+            valleyAnnotation.ClipToChartArea = candlestickChart.ChartAreas["ChartAreaCandlestick"].Name; valleyAnnotation.ForeColor = Color.Red;
+
+            // Draw a red horizontal line across the chart at the valley level
+            var valleyLine = new System.Windows.Forms.DataVisualization.Charting.HorizontalLineAnnotation
+            {
+                AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY,
+                ClipToChartArea = "ChartAreaCandlestick",
+                IsInfinitive = true,
+                Y = (double)low,
+                LineColor = System.Drawing.Color.Red,
+                LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash
+            };
+            candlestickChart.Annotations.Add(valleyLine);
+            candlestickChart.Annotations.Add(valleyAnnotation);
+         
+
+        }
+
 
         // Event handler for start date picker change
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
             DateTime startDate = dateTime_start.Value;
-            MessageBox.Show($"Start date changed to: {startDate.ToShortDateString()}");
+
         }
 
         // Event handler for end date picker change
         private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
         {
             DateTime endDate = dateTime_end.Value;
-            MessageBox.Show($"End date changed to: {endDate.ToShortDateString()}");
         }
 
         // Event handler for Load Stock button
@@ -134,7 +224,7 @@ namespace Project_1
 
                 try
 
-                    
+
                 {
                     void displayOne(String filePath)
                     {
@@ -147,14 +237,17 @@ namespace Project_1
                     if (fileNames.Length == 1)
                     {
                         displayOne(fileNames[0]);
-                    } else if (fileNames.Length > 1)
+                    }
+                    else if (fileNames.Length > 1)
                     {
                         displayOne(fileNames[0]);
-                        foreach (var filePath in fileNames.Skip(1)) {
+                        foreach (var filePath in fileNames.Skip(1))
+                        {
                             var childForm = new Form_StockViewer(filePath, dateTime_start.Value, dateTime_end.Value);
                             childForm.Show();
                         }
-                    } else
+                    }
+                    else
                     {
                         MessageBox.Show("No files selected");
                     }
@@ -173,5 +266,12 @@ namespace Project_1
 
 
         }
+
+        private void candlestickChart_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
+
+
