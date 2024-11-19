@@ -66,30 +66,60 @@ namespace Project_1
         }
 
 
+        /// <summary>
+        /// 
+        /// If candle length is greater than previous, and the direction multiplied by previous direction is down, and the candle direction equals the direction we pass in, and if the volume is greater than the previous, calculate the form.
+        /// Depending on the value of direction, it will return whether it is a valley or peak.
+        /// </summary>
+        /// <param name="candlesticks"></param>
+        /// <param name="index"></param>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private bool calculateForm(List<SmartCandlestick> candlesticks, int index, int direction)
+        {
+            if (direction != -1 && direction != 1)
+            {
+                throw new ArgumentException("Direction must be -1 (peak) or 1 (valley).");
+            }
 
+            var previous = candlesticks[index - 1];
 
-        public bool IsPeak(List<Candlestick> candlesticks, int index)
+            // Candle direction, 1 means up, -1 means down.
+            var candleDirection = this.Close > this.Open ? 1 : -1;
+            var previousCandleDirection = previous.Close > previous.Open ? 1 : -1;
+            var candlelen = this.BodyRange;
+            var previousCandlelen = previous.BodyRange;
+
+            return candlelen > previousCandlelen && candleDirection * previousCandleDirection == -1 && candleDirection == direction && this.Volume < previous.Volume;
+        }
+            
+        
+        public bool IsPeak(List<SmartCandlestick> candlesticks, int index)
         {
             if (index > 0 && index < candlesticks.Count - 1)
             {
-                return this.High > candlesticks[index - 1].High && this.High > candlesticks[index + 1].High;
+                return this.calculateForm(candlesticks, index, -1);
             }
             return false;
 
         }
-        public bool IsValley(List<Candlestick> candlesticks, int index)
+
+        public bool IsValley(List<SmartCandlestick> candlesticks, int index)
         {
             if (index > 0 && index < candlesticks.Count - 1)
             {
-                return this.Low < candlesticks[index - 1].Low && this.Low < candlesticks[index + 1].Low;
+               return this.calculateForm(candlesticks, index, 1);
             }
             return false;
         }
+
+
 
         // Loads a list of candlesticks from a CSV file
-        public static List<Candlestick> LoadStockDataFromCSV(string filePath)
+        public static List<SmartCandlestick> LoadStockDataFromCSV(string filePath)
         {
-            List<Candlestick> stockData = new List<Candlestick>();
+            List<SmartCandlestick> stockData = new List<SmartCandlestick>();
 
             try
             {
@@ -143,7 +173,7 @@ namespace Project_1
                             ulong volume = ulong.Parse(fields[5]);
 
                             // Add a new aCandlestick object to the list
-                            stockData.Add(new Candlestick(date, open, high, low, close, volume));
+                            stockData.Add(new SmartCandlestick(date, open, high, low, close, volume));
                         }
                         catch (Exception ex)
                         {

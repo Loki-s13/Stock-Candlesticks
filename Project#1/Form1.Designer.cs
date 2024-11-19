@@ -42,6 +42,7 @@
             this.aCandlestickBindingSource_stock = new System.Windows.Forms.BindingSource(this.components);
             this.candlestickChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button_update = new System.Windows.Forms.Button();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.aCandlestickBindingSource_stock)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.candlestickChart)).BeginInit();
             this.SuspendLayout();
@@ -107,7 +108,7 @@
             chartArea2.Name = "ChartAreaVolume";
             this.candlestickChart.ChartAreas.Add(chartArea1);
             this.candlestickChart.ChartAreas.Add(chartArea2);
-            this.candlestickChart.Location = new System.Drawing.Point(42, 115);
+            this.candlestickChart.Location = new System.Drawing.Point(42, 118);
             this.candlestickChart.Margin = new System.Windows.Forms.Padding(2);
             this.candlestickChart.Name = "candlestickChart";
             series1.ChartArea = "ChartAreaCandlestick";
@@ -130,6 +131,7 @@
             this.candlestickChart.Size = new System.Drawing.Size(476, 426);
             this.candlestickChart.TabIndex = 6;
             this.candlestickChart.Text = "chart1";
+            this.candlestickChart.Click += new System.EventHandler(this.candlestickChart_Click);
             // 
             // button_update
             // 
@@ -156,6 +158,7 @@
             this.Controls.Add(this.stockLoad_button);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form_StockViewer";
+            this.Text = "`";
             ((System.ComponentModel.ISupportInitialize)(this.aCandlestickBindingSource_stock)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.candlestickChart)).EndInit();
             this.ResumeLayout(false);
@@ -174,6 +177,7 @@
         private System.Windows.Forms.BindingSource aCandlestickBindingSource_stock;
         private System.Windows.Forms.DataVisualization.Charting.Chart candlestickChart;
         private System.Windows.Forms.Button button_update;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 
