@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.stockLoad_button = new System.Windows.Forms.Button();
             this.openFileDialog_stock = new System.Windows.Forms.OpenFileDialog();
             this.dateTime_start = new System.Windows.Forms.DateTimePicker();
@@ -43,13 +43,16 @@
             this.candlestickChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button_update = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.numericUpDown_leeway = new System.Windows.Forms.NumericUpDown();
+            this.button_computeBeauty = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.aCandlestickBindingSource_stock)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.candlestickChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_leeway)).BeginInit();
             this.SuspendLayout();
             // 
             // stockLoad_button
             // 
-            this.stockLoad_button.Location = new System.Drawing.Point(232, 12);
+            this.stockLoad_button.Location = new System.Drawing.Point(244, 31);
             this.stockLoad_button.Margin = new System.Windows.Forms.Padding(2);
             this.stockLoad_button.Name = "stockLoad_button";
             this.stockLoad_button.Size = new System.Drawing.Size(94, 32);
@@ -75,7 +78,7 @@
             // 
             // dateTime_end
             // 
-            this.dateTime_end.Location = new System.Drawing.Point(334, 54);
+            this.dateTime_end.Location = new System.Drawing.Point(598, 59);
             this.dateTime_end.Margin = new System.Windows.Forms.Padding(2);
             this.dateTime_end.Name = "dateTime_end";
             this.dateTime_end.Size = new System.Drawing.Size(186, 20);
@@ -95,47 +98,52 @@
             // endDate_picker
             // 
             this.endDate_picker.AutoSize = true;
-            this.endDate_picker.Location = new System.Drawing.Point(390, 31);
+            this.endDate_picker.Location = new System.Drawing.Point(649, 31);
             this.endDate_picker.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.endDate_picker.Name = "endDate_picker";
             this.endDate_picker.Size = new System.Drawing.Size(76, 13);
             this.endDate_picker.TabIndex = 4;
             this.endDate_picker.Text = "Pick End Date";
+            this.endDate_picker.Click += new System.EventHandler(this.endDate_picker_Click);
             // 
             // candlestickChart
             // 
-            chartArea1.Name = "ChartAreaCandlestick";
-            chartArea2.Name = "ChartAreaVolume";
-            this.candlestickChart.ChartAreas.Add(chartArea1);
-            this.candlestickChart.ChartAreas.Add(chartArea2);
+            this.candlestickChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            chartArea7.Name = "ChartAreaCandlestick";
+            chartArea8.Name = "ChartAreaVolume";
+            this.candlestickChart.ChartAreas.Add(chartArea7);
+            this.candlestickChart.ChartAreas.Add(chartArea8);
             this.candlestickChart.Location = new System.Drawing.Point(42, 118);
             this.candlestickChart.Margin = new System.Windows.Forms.Padding(2);
             this.candlestickChart.Name = "candlestickChart";
-            series1.ChartArea = "ChartAreaCandlestick";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Candlestick;
-            series1.CustomProperties = "PriceDownColor=192\\, 0\\, 0, PriceUpColor=Lime";
-            series1.Name = "SeriesCandlestick";
-            series1.XValueMember = "Date";
-            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
-            series1.YValueMembers = "High, Low, Open, Close";
-            series1.YValuesPerPoint = 6;
-            series2.ChartArea = "ChartAreaVolume";
-            series2.IsXValueIndexed = true;
-            series2.Name = "SeriesVolume";
-            series2.XValueMember = "Date";
-            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
-            series2.YValueMembers = "Volume";
-            series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.UInt64;
-            this.candlestickChart.Series.Add(series1);
-            this.candlestickChart.Series.Add(series2);
-            this.candlestickChart.Size = new System.Drawing.Size(476, 426);
+            series7.ChartArea = "ChartAreaCandlestick";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Candlestick;
+            series7.CustomProperties = "PriceDownColor=192\\, 0\\, 0, PriceUpColor=Lime";
+            series7.Name = "SeriesCandlestick";
+            series7.XValueMember = "Date";
+            series7.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
+            series7.YValueMembers = "High, Low, Open, Close";
+            series7.YValuesPerPoint = 6;
+            series8.ChartArea = "ChartAreaVolume";
+            series8.IsXValueIndexed = true;
+            series8.Name = "SeriesVolume";
+            series8.XValueMember = "Date";
+            series8.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
+            series8.YValueMembers = "Volume";
+            series8.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.UInt64;
+            this.candlestickChart.Series.Add(series7);
+            this.candlestickChart.Series.Add(series8);
+            this.candlestickChart.Size = new System.Drawing.Size(775, 639);
             this.candlestickChart.TabIndex = 6;
             this.candlestickChart.Text = "chart1";
             this.candlestickChart.Click += new System.EventHandler(this.candlestickChart_Click);
+            this.candlestickChart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.candlestickChart_MouseClick);
             // 
             // button_update
             // 
-            this.button_update.Location = new System.Drawing.Point(232, 67);
+            this.button_update.Location = new System.Drawing.Point(489, 32);
             this.button_update.Margin = new System.Windows.Forms.Padding(2);
             this.button_update.Name = "button_update";
             this.button_update.Size = new System.Drawing.Size(94, 31);
@@ -144,11 +152,44 @@
             this.button_update.UseVisualStyleBackColor = true;
             this.button_update.Click += new System.EventHandler(this.update_StockData);
             // 
+            // numericUpDown_leeway
+            // 
+            this.numericUpDown_leeway.Location = new System.Drawing.Point(391, 120);
+            this.numericUpDown_leeway.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.numericUpDown_leeway.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.numericUpDown_leeway.Name = "numericUpDown_leeway";
+            this.numericUpDown_leeway.Size = new System.Drawing.Size(75, 20);
+            this.numericUpDown_leeway.TabIndex = 9;
+            this.numericUpDown_leeway.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
+            // 
+            // button_computeBeauty
+            // 
+            this.button_computeBeauty.Location = new System.Drawing.Point(370, 31);
+            this.button_computeBeauty.Name = "button_computeBeauty";
+            this.button_computeBeauty.Size = new System.Drawing.Size(96, 32);
+            this.button_computeBeauty.TabIndex = 10;
+            this.button_computeBeauty.Text = "Beauty";
+            this.button_computeBeauty.UseVisualStyleBackColor = true;
+            this.button_computeBeauty.Click += new System.EventHandler(this.button_computeBeauty_Click);
+            // 
             // Form_StockViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(622, 570);
+            this.ClientSize = new System.Drawing.Size(921, 783);
+            this.Controls.Add(this.button_computeBeauty);
             this.Controls.Add(this.button_update);
             this.Controls.Add(this.candlestickChart);
             this.Controls.Add(this.endDate_picker);
@@ -156,11 +197,13 @@
             this.Controls.Add(this.dateTime_end);
             this.Controls.Add(this.dateTime_start);
             this.Controls.Add(this.stockLoad_button);
+            this.Controls.Add(this.numericUpDown_leeway);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form_StockViewer";
             this.Text = "`";
             ((System.ComponentModel.ISupportInitialize)(this.aCandlestickBindingSource_stock)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.candlestickChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_leeway)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -178,6 +221,8 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart candlestickChart;
         private System.Windows.Forms.Button button_update;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.NumericUpDown numericUpDown_leeway;
+        private System.Windows.Forms.Button button_computeBeauty;
     }
 }
 

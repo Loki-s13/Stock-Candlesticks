@@ -15,16 +15,21 @@ namespace Project_1
 
         private BindingList<SmartCandlestick> boundCandlesticks = null;
         private List<SmartCandlestick> listOfCandlesticks = null;
+        private SmartCandlestick firstSelection = null;
+        private SmartCandlestick secondSelection = null;
 
         public Form_StockViewer()
         {
             InitializeComponent();
+
 
         }
 
         public Form_StockViewer(String filename, DateTime startDate, DateTime endDate)
         {
             InitializeComponent();
+            numericUpDown_leeway.Value = 0.5m;
+
 
             dateTime_start.Value = startDate;
             dateTime_end.Value = endDate;
@@ -125,7 +130,7 @@ namespace Project_1
         /// <param name="high"></param>
         private void AddPeakAnnotation(DateTime date, decimal high, int pointIndex)
         {
- 
+
             var peakAnnotation = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation
             {
                 Text = "▲",
@@ -138,7 +143,7 @@ namespace Project_1
             };
 
             candlestickChart.Annotations.Add(peakAnnotation);
-       
+
 
             // Draw a green horizontal line across the chart at the peak level
             var peakLine = new System.Windows.Forms.DataVisualization.Charting.HorizontalLineAnnotation
@@ -194,7 +199,7 @@ namespace Project_1
             };
             candlestickChart.Annotations.Add(valleyLine);
             candlestickChart.Annotations.Add(valleyAnnotation);
-         
+
 
         }
 
@@ -263,13 +268,197 @@ namespace Project_1
         {
             filterCandlesticks();
             displayCandlesticks();
-
-
         }
 
         private void candlestickChart_Click(object sender, EventArgs e)
         {
+        }
 
+
+        /// <summary>
+        /// Funtion to handle mouse click on the candlestick to assign first candlestick and second
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void candlestickChart_MouseClick(object sender, MouseEventArgs e)
+        {
+            var hit = candlestickChart.HitTest(e.X, e.Y);
+
+            //cheks if user candlestick is valid
+            if (hit.ChartElementType == ChartElementType.DataPoint)
+            {
+                var selectedPointIndex = hit.PointIndex;
+                var selectedCandle = boundCandlesticks[selectedPointIndex];
+
+                // Handle the first and second selections
+                if (firstSelection == null)
+                {
+                    firstSelection = selectedCandle;
+                    MessageBox.Show($"First candlestick selected: {firstSelection.Date.ToShortDateString()}");
+                }
+                else
+                {
+                    secondSelection = selectedCandle;
+
+                    // Validate and compute Fibonacci levels
+                    if (ValidateWave(firstSelection, secondSelection))
+                    {
+                        decimal highPrice = Math.Max(firstSelection.High, secondSelection.High);
+                        decimal lowPrice = Math.Min(firstSelection.Low, secondSelection.Low);
+
+                        var fibLevels = WaveHelper.CalculateFibonacciLevels(highPrice, lowPrice);
+
+                        // Draw Fibonacci levels on the chart
+                        DrawFibonacciLevels(fibLevels, firstSelection.Date, secondSelection.Date);
+
+                        MessageBox.Show("Wave selected and Fibonacci levels calculated.");
+                    }
+
+                    
+                }
+            }
+
+        }
+
+
+        /// <summary>
+        /// Function to validate wheather the selected wave is valid or not
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        private bool ValidateWave(SmartCandlestick first, SmartCandlestick second)
+        {
+
+            if (firstSelection == null || secondSelection == null)
+            {
+                MessageBox.Show("Please select both the start and end candlesticks before calculating Beauty.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            }
+            else if (first.Date >= second.Date)
+            {
+                MessageBox.Show("Invalid wave: The second candlestick must come after the first.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+           
+
+            return true;
+        }
+
+        /// <summary>
+        /// Draws and labels the fibonacci levels on the chart
+        /// </summary>
+        /// <param name="fibLevels"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        private void DrawFibonacciLevels(List<decimal> fibLevels, DateTime startDate, DateTime endDate)
+        {
+            // Clear existing Fibonacci levels
+            ClearFibonacciLevels();
+
+            int levelIndex = 0;
+
+            // Convert the end date to a chart coordinate
+            double endDatePosition = endDate.ToOADate();
+
+            foreach (var level in fibLevels)
+            {
+                // Draw the horizontal line
+                var fibLine = new HorizontalLineAnnotation
+                {
+                    Name = $"FibLevel_{levelIndex++}",
+                    AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY,
+                    ClipToChartArea = "ChartAreaCandlestick",
+                    IsInfinitive = true,
+                    Y = (double)level,
+                    LineColor = Color.Blue,
+                    LineDashStyle = ChartDashStyle.Dash
+                };
+                candlestickChart.Annotations.Add(fibLine);
+
+                // Add the label for the Fibonacci level near the line
+                var fibLabel = new TextAnnotation
+                {
+                    Name = $"FibLabel_{levelIndex}",
+                    Text = $"{level:F2}", // Format to two decimal places
+                    AxisX = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisX,
+                    AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY,
+                    ClipToChartArea = "ChartAreaCandlestick",
+                    X = endDatePosition - 10, // Place label slightly left of the end date
+                    Y = (double)level, // Align with the Fibonacci line
+                    Alignment = System.Drawing.ContentAlignment.MiddleRight, // Align text to the right
+                    ForeColor = Color.Blue,
+                    Font = new Font("Arial", 10, FontStyle.Regular)
+                };
+                candlestickChart.Annotations.Add(fibLabel);
+            }
+        }
+
+        /// <summary>
+        /// Displays and compute the beauty of the selected wave based on the Fibonacci levels
+        /// </summary>
+        private void ComputeAndDisplayWaveBeauty()
+        {
+            if (firstSelection == null || secondSelection == null)
+            {
+                MessageBox.Show("Wave start and end must be properly set.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!ValidateWave(firstSelection, secondSelection))
+            {
+                MessageBox.Show("The selected wave is not valid.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            decimal highPrice = Math.Max(firstSelection.High, secondSelection.High);
+            decimal lowPrice = Math.Min(firstSelection.Low, secondSelection.Low);
+
+            // Calculate Fibonacci levels
+            var fibLevels = Beauty.CalculateFibonacciLevels(highPrice, lowPrice);
+
+            // Get the candlesticks in the wave
+            var waveCandlesticks = boundCandlesticks
+                .Where(c => c.Date >= firstSelection.Date && c.Date <= secondSelection.Date)
+                .ToList();
+
+            // Compute the total Beauty of the wave
+            decimal leeway = numericUpDown_leeway.Value;
+            int waveBeauty = Beauty.ComputeWaveBeauty(waveCandlesticks, fibLevels, leeway);
+
+            MessageBox.Show($"Wave Beauty: {waveBeauty}");
+
+            // Reset selections
+            firstSelection = null;
+            secondSelection = null;
+        }
+
+
+        /// <summary>
+        /// Clears all Fibonacci levels and labels from the chart.
+        /// </summary>
+        private void ClearFibonacciLevels()
+        {
+            // Remove annotations related to Fibonacci levels
+            var annotationsToRemove = candlestickChart.Annotations
+                .Where(a => a.Name != null && a.Name.StartsWith("FibLevel"))
+                .ToList();
+
+            foreach (var annotation in annotationsToRemove)
+            {
+                candlestickChart.Annotations.Remove(annotation);
+            }
+        }
+
+
+        private void endDate_picker_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button_computeBeauty_Click(object sender, EventArgs e)
+        {
+            ComputeAndDisplayWaveBeauty();
         }
     }
 }
