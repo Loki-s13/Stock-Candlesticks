@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using System.Windows.Forms.VisualStyles;
 
 namespace Project_1
 {
@@ -111,14 +109,13 @@ namespace Project_1
                 // Add the volume data to the SeriesVolume
                 candlestickChart.Series["SeriesVolume"].Points.AddXY(item.Date, item.Volume);
 
-                if (item.IsPeak(boundCandlesticks.ToList(), i))
+                SmartCandlestick.CalculatePeaksAndValleys(boundCandlesticks, onPeak: (candlestick) =>
                 {
-                    AddPeakAnnotation(item.Date, item.High, pointIndex);
-                }
-                else if (item.IsValley(boundCandlesticks.ToList(), i))
+                    AddPeakAnnotation(candlestick.Date, candlestick.High);
+                }, onValley: (candlestick) =>
                 {
-                    AddValleyAnnotation(item.Date, item.Low);
-                }
+                    AddValleyAnnotation(candlestick.Date, candlestick.Low);
+                });
             }
         }
 
@@ -128,7 +125,7 @@ namespace Project_1
         /// </summary>
         /// <param name="date"></param>
         /// <param name="high"></param>
-        private void AddPeakAnnotation(DateTime date, decimal high, int pointIndex)
+        private void AddPeakAnnotation(DateTime date, decimal high)
         {
 
             var peakAnnotation = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation
@@ -290,13 +287,23 @@ namespace Project_1
                 var selectedPointIndex = hit.PointIndex;
                 var selectedCandle = boundCandlesticks[selectedPointIndex];
 
-                // Handle the first and second selections
+                // Handle the first selection
                 if (firstSelection == null)
                 {
-                    firstSelection = selectedCandle;
-                    MessageBox.Show($"First candlestick selected: {firstSelection.Date.ToShortDateString()}");
+                    if (selectedCandle.IsPeak || selectedCandle.IsValley)
+                    {
+                        firstSelection = selectedCandle;
+                        MessageBox.Show($"First candlestick selected: {firstSelection.Date.ToShortDateString()}");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please select a Peak or a Valley candlestick");
+                    }
+
+
                 }
-                else
+                // Handle the second selection
+                else if (firstSelection != null && secondSelection == null)
                 {
                     secondSelection = selectedCandle;
 
@@ -313,11 +320,15 @@ namespace Project_1
 
                         MessageBox.Show("Wave selected and Fibonacci levels calculated.");
                     }
-
-                    
+                }
+                else if (firstSelection != null && secondSelection != null)
+                {
+                    MessageBox.Show("More than two candlesticks selected, resetting selection.");
+                    ClearFibonacciLevels();
+                    firstSelection = null;
+                    secondSelection = null;
                 }
             }
-
         }
 
 
@@ -333,6 +344,7 @@ namespace Project_1
             if (firstSelection == null || secondSelection == null)
             {
                 MessageBox.Show("Please select both the start and end candlesticks before calculating Beauty.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
 
             }
             else if (first.Date >= second.Date)
@@ -340,7 +352,7 @@ namespace Project_1
                 MessageBox.Show("Invalid wave: The second candlestick must come after the first.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-           
+
 
             return true;
         }
@@ -427,7 +439,7 @@ namespace Project_1
             int waveBeauty = Beauty.ComputeWaveBeauty(waveCandlesticks, fibLevels, leeway);
 
             MessageBox.Show($"Wave Beauty: {waveBeauty}");
-
+            ClearFibonacciLevels();
             // Reset selections
             firstSelection = null;
             secondSelection = null;
@@ -441,8 +453,8 @@ namespace Project_1
         {
             // Remove annotations related to Fibonacci levels
             var annotationsToRemove = candlestickChart.Annotations
-                .Where(a => a.Name != null && a.Name.StartsWith("FibLevel"))
-                .ToList();
+               .Where(a => a.Name != null && (a.Name.StartsWith("FibLevel") || a.Name.StartsWith("FibLabel")))
+               .ToList();
 
             foreach (var annotation in annotationsToRemove)
             {
