@@ -111,10 +111,10 @@ namespace Project_1
 
                 SmartCandlestick.CalculatePeaksAndValleys(boundCandlesticks, onPeak: (candlestick) =>
                 {
-                    AddPeakAnnotation(candlestick.Date, candlestick.High);
+                    //AddPeakAnnotation(candlestick.Date, candlestick.High);
                 }, onValley: (candlestick) =>
                 {
-                    AddValleyAnnotation(candlestick.Date, candlestick.Low);
+                    //AddValleyAnnotation(candlestick.Date, candlestick.Low);
                 });
             }
         }
@@ -128,7 +128,7 @@ namespace Project_1
         private void AddPeakAnnotation(DateTime date, decimal high)
         {
 
-            var peakAnnotation = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation
+            /*var peakAnnotation = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation
             {
                 Text = "▲",
                 ForeColor = Color.Green,
@@ -139,7 +139,7 @@ namespace Project_1
                 Alignment = System.Drawing.ContentAlignment.BottomCenter
             };
 
-            candlestickChart.Annotations.Add(peakAnnotation);
+            candlestickChart.Annotations.Add(peakAnnotation);*/
 
 
             // Draw a green horizontal line across the chart at the peak level
@@ -176,14 +176,6 @@ namespace Project_1
                 Y = (double)low,
                 Alignment = System.Drawing.ContentAlignment.TopCenter
             };*/
-            var valleyAnnotation = new TextAnnotation();
-            valleyAnnotation.AxisX = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisX;
-            valleyAnnotation.AxisY = candlestickChart.ChartAreas["ChartAreaCandlestick"].AxisY;
-            valleyAnnotation.IsSizeAlwaysRelative = false;
-            valleyAnnotation.AnchorAlignment = System.Drawing.ContentAlignment.BottomLeft;
-            valleyAnnotation.Text = "TESTING";
-            valleyAnnotation.ClipToChartArea = candlestickChart.ChartAreas["ChartAreaCandlestick"].Name; valleyAnnotation.ForeColor = Color.Red;
-
             // Draw a red horizontal line across the chart at the valley level
             var valleyLine = new System.Windows.Forms.DataVisualization.Charting.HorizontalLineAnnotation
             {
@@ -195,7 +187,6 @@ namespace Project_1
                 LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash
             };
             candlestickChart.Annotations.Add(valleyLine);
-            candlestickChart.Annotations.Add(valleyAnnotation);
 
 
         }
