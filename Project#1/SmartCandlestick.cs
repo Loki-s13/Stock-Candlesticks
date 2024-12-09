@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Project_1
 {
     public class SmartCandlestick : Candlestick
     {
+        private bool _isPeak = false;
+        private bool _isValley = false;
+
         public decimal Range { get { return High - Low; } }
         public decimal BodyRange { get { return Math.Abs(Close - Open); } }
         public decimal TopPrice { get { return Math.Max(Open, Close); } }
         public decimal BottomPrice { get { return Math.Min(Open, Close); } }
         public decimal UpperTail { get { return High - TopPrice; } }
         public decimal LowerTail { get { return BottomPrice - Low; } }
-
+        public bool IsPeak { get { return _isPeak; } set { _isPeak = value; } }
+        public bool IsValley { get { return _isValley; } set { _isValley = value; } }
 
 
 
@@ -76,7 +80,7 @@ namespace Project_1
         /// <param name="direction"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private bool calculateForm(List<SmartCandlestick> candlesticks, int index, int direction)
+        private bool calculateForm(BindingList<SmartCandlestick> candlesticks, int index, int direction)
         {
             if (direction != -1 && direction != 1)
             {
@@ -93,23 +97,40 @@ namespace Project_1
 
             return candlelen > previousCandlelen && candleDirection * previousCandleDirection == -1 && candleDirection == direction && this.Volume < previous.Volume;
         }
-            
-        
-        public bool IsPeak(List<SmartCandlestick> candlesticks, int index)
+
+        public static void CalculatePeaksAndValleys(BindingList<SmartCandlestick> candlesticks, Action<SmartCandlestick> onPeak, Action<SmartCandlestick> onValley)
+
+        {
+            for (int i = 0; i < candlesticks.Count; i++)
+            {
+                if (isIndexPeak(candlesticks, i))
+                {
+                    candlesticks[i].IsPeak = true;
+                    onPeak(candlesticks[i]);
+                }
+                else if (isIndexValley(candlesticks, i))
+                {
+                    candlesticks[i].IsValley = true;
+                    onValley(candlesticks[i]);
+                }
+            }
+        }
+        private static bool isIndexPeak(BindingList<SmartCandlestick> candlesticks, int index)
         {
             if (index > 0 && index < candlesticks.Count - 1)
             {
-                return this.calculateForm(candlesticks, index, -1);
+
+                return candlesticks[index].calculateForm(candlesticks, index, -1);
             }
             return false;
 
         }
 
-        public bool IsValley(List<SmartCandlestick> candlesticks, int index)
+        private static bool isIndexValley(BindingList<SmartCandlestick> candlesticks, int index)
         {
             if (index > 0 && index < candlesticks.Count - 1)
             {
-               return this.calculateForm(candlesticks, index, 1);
+                return candlesticks[index].calculateForm(candlesticks, index, 1);
             }
             return false;
         }
